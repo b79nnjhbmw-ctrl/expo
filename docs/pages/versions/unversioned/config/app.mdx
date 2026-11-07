@@ -1,24 +1,227 @@
----
-title: app.json / app.config.js
-description: A reference of available properties in Expo app config.
-maxHeadingDepth: 5
----
 
-import { CodeSquare01Icon } from '@expo/styleguide-icons/outline/CodeSquare01Icon';
+import React, { useState } from 'react';
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  ScrollView,
+  StyleSheet,
+  SafeAreaView,
+  KeyboardAvoidingView,
+  Platform
+} from 'react-native';
 
-import schema from '~/public/static/schemas/unversioned/app-config-schema.json';
-import AppConfigSchemaTable from '~/ui/components/AppConfigSchemaTable';
-import { BoxLink } from '~/ui/components/BoxLink';
+export default function App() {
+  const [messages, setMessages] = useState([
+    {
+      id: '1',
+      text: 'Merhaba! Ben senin kişisel yapay zekâ asistanınım. Sana nasıl yardımcı olabilirim?',
+      sender: 'ai'
+    }
+  ]);
 
-The following is a list of properties that are available for you under the `"expo"` key in **app.json** or **app.config.json**. These properties can be passed to the top level object of **app.config.js** or **app.config.ts**.
+  const [input, setInput] = useState('');
 
-<BoxLink
-  title="Configuration with app config"
-  description="For information on app configuration, the differences between various app config files, and how to use them dynamically."
-  href="/workflow/configuration/"
-  Icon={CodeSquare01Icon}
-/>
+  const sendMessage = () => {
+    if (!input.trim()) return;
 
-## Properties
+    const newMessage = {
+      id: Date.now().toString(),
+      text: input.trim(),
+      sender: 'user'
+    };
 
-<AppConfigSchemaTable schema={schema} />
+    setMessages(previous => [...previous, newMessage]);
+    setInput('');
+  };
+
+  return (
+    <SafeAreaView style={styles.container}>
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      >
+        <View style={styles.header}>
+          <View>
+            <Text style={styles.logo}>AI ASSISTANT</Text>
+            <Text style={styles.subtitle}>Kişisel yapay zekân</Text>
+          </View>
+          <View style={styles.status}>
+            <View style={styles.dot} />
+            <Text style={styles.statusText}>Hazır</Text>
+          </View>
+        </View>
+
+        <View style={styles.welcome}>
+          <Text style={styles.welcomeTitle}>Merhaba!</Text>
+          <Text style={styles.welcomeText}>
+            Kişisel asistanın seni dinliyor.
+          </Text>
+          <Text style={styles.orb}>✦</Text>
+        </View>
+
+        <ScrollView
+          style={styles.chat}
+          contentContainerStyle={{ paddingBottom: 20 }}
+        >
+          {messages.map(message => (
+            <View
+              key={message.id}
+              style={[
+                styles.message,
+                message.sender === 'user'
+                  ? styles.userMessage
+                  : styles.aiMessage
+              ]}
+            >
+              <Text style={styles.messageLabel}>
+                {message.sender === 'user' ? 'SEN' : 'ASİSTAN'}
+              </Text>
+              <Text style={styles.messageText}>{message.text}</Text>
+            </View>
+          ))}
+        </ScrollView>
+
+        <View style={styles.inputArea}>
+          <TextInput
+            style={styles.input}
+            placeholder="Bir şeyler yaz..."
+            placeholderTextColor="#8290AA"
+            value={input}
+            onChangeText={setInput}
+            onSubmitEditing={sendMessage}
+            returnKeyType="send"
+          />
+          <TouchableOpacity
+            style={styles.sendButton}
+            onPress={sendMessage}
+          >
+            <Text style={styles.sendText}>➤</Text>
+          </TouchableOpacity>
+        </View>
+
+        <Text style={styles.footer}>
+          KİŞİSEL ASİSTAN • SÜRÜM 1.0
+        </Text>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#080D1B'
+  },
+  header: {
+    padding: 22,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    borderBottomWidth: 1,
+    borderBottomColor: '#1B2945'
+  },
+  logo: {
+    color: '#42A5FF',
+    fontSize: 19,
+    fontWeight: 'bold',
+    letterSpacing: 2
+  },
+  subtitle: {
+    color: '#8998B4',
+    marginTop: 5
+  },
+  status: {
+    flexDirection: 'row',
+    alignItems: 'center'
+  },
+  dot: {
+    width: 8,
+    height: 8,
+    borderRadius: 5,
+    backgroundColor: '#38D9A9',
+    marginRight: 7
+  },
+  statusText: {
+    color: '#38D9A9'
+  },
+  welcome: {
+    alignItems: 'center',
+    paddingVertical: 24
+  },
+  welcomeTitle: {
+    color: 'white',
+    fontSize: 27,
+    fontWeight: 'bold'
+  },
+  welcomeText: {
+    color: '#8998B4',
+    marginTop: 8
+  },
+  orb: {
+    color: '#42A5FF',
+    fontSize: 55,
+    marginTop: 10
+  },
+  chat: {
+    flex: 1,
+    paddingHorizontal: 16
+  },
+  message: {
+    padding: 15,
+    borderRadius: 15,
+    marginVertical: 7,
+    maxWidth: '88%'
+  },
+  aiMessage: {
+    backgroundColor: '#14213B',
+    alignSelf: 'flex-start'
+  },
+  userMessage: {
+    backgroundColor: '#174E89',
+    alignSelf: 'flex-end'
+  },
+  messageLabel: {
+    color: '#58B5FF',
+    fontSize: 10,
+    fontWeight: 'bold',
+    marginBottom: 7
+  },
+  messageText: {
+    color: 'white',
+    fontSize: 15,
+    lineHeight: 22
+  },
+  inputArea: {
+    flexDirection: 'row',
+    padding: 14,
+    gap: 10
+  },
+  input: {
+    flex: 1,
+    backgroundColor: '#14213B',
+    color: 'white',
+    borderRadius: 14,
+    paddingHorizontal: 16,
+    fontSize: 15
+  },
+  sendButton: {
+    backgroundColor: '#168BFF',
+    width: 52,
+    height: 52,
+    borderRadius: 14,
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
+  sendText: {
+    color: 'white',
+    fontSize: 24
+  },
+  footer: {
+    color: '#52617C',
+    textAlign: 'center',
+    fontSize: 10,
+    paddingBottom: 10
+  }
+});
